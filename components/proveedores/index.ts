@@ -1,0 +1,12 @@
+export { AddProveedorDialog } from './add-proveedor-dialog';
+export { AddProveedorForm } from './add-proveedor-form';
+export { UpdateProveedorDialog } from './update-proveedor-dialog';
+export { UpdateProveedorForm } from './update-proveedor-form';
+export { DeleteProveedorDialog } from './delete-proveedor-dialog';
+export { ProveedoresTable } from './proveedores-table';
+export { ProveedoresGrid } from './proveedores-grid';
+export { ProveedorProductsDialog } from './proveedor-products-dialog';
+export { ProveedoresView } from './proveedores-view';
+export { AddProductsToProveedorDialog } from './add-products-to-proveedor-dialog';
+export { ManageProveedorProductsDialog } from './manage-proveedor-products-dialog';
+export { BulkManageProductsDialog } from './bulk-manage-products-dialog'; 

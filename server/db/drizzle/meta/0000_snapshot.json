@@ -1,0 +1,1072 @@
+{
+  "id": "415b9b6b-3719-4eea-a35e-6593a86f2b84",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.cliente": {
+      "name": "cliente",
+      "schema": "",
+      "columns": {
+        "ci": {
+          "name": "ci",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "celular": {
+          "name": "celular",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "puntos": {
+          "name": "puntos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direccion": {
+          "name": "direccion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notasEntrega": {
+          "name": "notasEntrega",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "razonSocial": {
+          "name": "razonSocial",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nit": {
+          "name": "nit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.combo": {
+      "name": "combo",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "precio": {
+          "name": "precio",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urlImagen": {
+          "name": "urlImagen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.detalleCombo": {
+      "name": "detalleCombo",
+      "schema": "",
+      "columns": {
+        "estado": {
+          "name": "estado",
+          "type": "estadoOrden",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "calificacion": {
+          "name": "calificacion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "combo_id": {
+          "name": "combo_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pedido_id": {
+          "name": "pedido_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "detalleCombo_combo_id_combo_id_fk": {
+          "name": "detalleCombo_combo_id_combo_id_fk",
+          "tableFrom": "detalleCombo",
+          "tableTo": "combo",
+          "columnsFrom": [
+            "combo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "detalleCombo_pedido_id_pedido_id_fk": {
+          "name": "detalleCombo_pedido_id_pedido_id_fk",
+          "tableFrom": "detalleCombo",
+          "tableTo": "pedido",
+          "columnsFrom": [
+            "pedido_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "detalleCombo_combo_id_pedido_id_pk": {
+          "name": "detalleCombo_combo_id_pedido_id_pk",
+          "columns": [
+            "combo_id",
+            "pedido_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.detalleProductos": {
+      "name": "detalleProductos",
+      "schema": "",
+      "columns": {
+        "estado": {
+          "name": "estado",
+          "type": "estadoOrden",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "calificacion": {
+          "name": "calificacion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "producto_id": {
+          "name": "producto_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pedido_id": {
+          "name": "pedido_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "detalleProductos_producto_id_producto_id_fk": {
+          "name": "detalleProductos_producto_id_producto_id_fk",
+          "tableFrom": "detalleProductos",
+          "tableTo": "producto",
+          "columnsFrom": [
+            "producto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "detalleProductos_pedido_id_pedido_id_fk": {
+          "name": "detalleProductos_pedido_id_pedido_id_fk",
+          "tableFrom": "detalleProductos",
+          "tableTo": "pedido",
+          "columnsFrom": [
+            "pedido_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "detalleProductos_producto_id_pedido_id_pk": {
+          "name": "detalleProductos_producto_id_pedido_id_pk",
+          "columns": [
+            "producto_id",
+            "pedido_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.factura": {
+      "name": "factura",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "razonSocial": {
+          "name": "razonSocial",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nit": {
+          "name": "nit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pago_id": {
+          "name": "pago_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "factura_pago_id_pago_id_fk": {
+          "name": "factura_pago_id_pago_id_fk",
+          "tableFrom": "factura",
+          "tableTo": "pago",
+          "columnsFrom": [
+            "pago_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.menu": {
+      "name": "menu",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fecha": {
+          "name": "fecha",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.menuProducto": {
+      "name": "menuProducto",
+      "schema": "",
+      "columns": {
+        "cantidadPreparada": {
+          "name": "cantidadPreparada",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cantidadVendida": {
+          "name": "cantidadVendida",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "menu_id": {
+          "name": "menu_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "producto_id": {
+          "name": "producto_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "menuProducto_menu_id_menu_id_fk": {
+          "name": "menuProducto_menu_id_menu_id_fk",
+          "tableFrom": "menuProducto",
+          "tableTo": "menu",
+          "columnsFrom": [
+            "menu_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "menuProducto_producto_id_producto_id_fk": {
+          "name": "menuProducto_producto_id_producto_id_fk",
+          "tableFrom": "menuProducto",
+          "tableTo": "producto",
+          "columnsFrom": [
+            "producto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "menuProducto_menu_id_producto_id_pk": {
+          "name": "menuProducto_menu_id_producto_id_pk",
+          "columns": [
+            "menu_id",
+            "producto_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.mesa": {
+      "name": "mesa",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estadoMesa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.pago": {
+      "name": "pago",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "monto": {
+          "name": "monto",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fechaHora": {
+          "name": "fechaHora",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.pedido": {
+      "name": "pedido",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fechaHoraPedido": {
+          "name": "fechaHoraPedido",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fechaHoraEntrega": {
+          "name": "fechaHoraEntrega",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estadoPedido",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "calificacionMesero": {
+          "name": "calificacionMesero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total": {
+          "name": "total",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mesa_id": {
+          "name": "mesa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cliente_ci": {
+          "name": "cliente_ci",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mesero_id": {
+          "name": "mesero_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pago_id": {
+          "name": "pago_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pedido_mesa_id_mesa_id_fk": {
+          "name": "pedido_mesa_id_mesa_id_fk",
+          "tableFrom": "pedido",
+          "tableTo": "mesa",
+          "columnsFrom": [
+            "mesa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pedido_cliente_ci_cliente_ci_fk": {
+          "name": "pedido_cliente_ci_cliente_ci_fk",
+          "tableFrom": "pedido",
+          "tableTo": "cliente",
+          "columnsFrom": [
+            "cliente_ci"
+          ],
+          "columnsTo": [
+            "ci"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pedido_mesero_id_user_id_fk": {
+          "name": "pedido_mesero_id_user_id_fk",
+          "tableFrom": "pedido",
+          "tableTo": "user",
+          "columnsFrom": [
+            "mesero_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pedido_pago_id_pago_id_fk": {
+          "name": "pedido_pago_id_pago_id_fk",
+          "tableFrom": "pedido",
+          "tableTo": "pago",
+          "columnsFrom": [
+            "pago_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.producto": {
+      "name": "producto",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categoria": {
+          "name": "categoria",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "precio": {
+          "name": "precio",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipoProducto",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urlImagen": {
+          "name": "urlImagen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.productoCombo": {
+      "name": "productoCombo",
+      "schema": "",
+      "columns": {
+        "producto_id": {
+          "name": "producto_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "combo_id": {
+          "name": "combo_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "productoCombo_producto_id_producto_id_fk": {
+          "name": "productoCombo_producto_id_producto_id_fk",
+          "tableFrom": "productoCombo",
+          "tableTo": "producto",
+          "columnsFrom": [
+            "producto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "productoCombo_combo_id_combo_id_fk": {
+          "name": "productoCombo_combo_id_combo_id_fk",
+          "tableFrom": "productoCombo",
+          "tableTo": "combo",
+          "columnsFrom": [
+            "combo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "productoCombo_producto_id_combo_id_pk": {
+          "name": "productoCombo_producto_id_combo_id_pk",
+          "columns": [
+            "producto_id",
+            "combo_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.productoProveedor": {
+      "name": "productoProveedor",
+      "schema": "",
+      "columns": {
+        "producto_id": {
+          "name": "producto_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proveedor_id": {
+          "name": "proveedor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "productoProveedor_producto_id_producto_id_fk": {
+          "name": "productoProveedor_producto_id_producto_id_fk",
+          "tableFrom": "productoProveedor",
+          "tableTo": "producto",
+          "columnsFrom": [
+            "producto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "productoProveedor_proveedor_id_proveedor_id_fk": {
+          "name": "productoProveedor_proveedor_id_proveedor_id_fk",
+          "tableFrom": "productoProveedor",
+          "tableTo": "proveedor",
+          "columnsFrom": [
+            "proveedor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "productoProveedor_producto_id_proveedor_id_pk": {
+          "name": "productoProveedor_producto_id_proveedor_id_pk",
+          "columns": [
+            "producto_id",
+            "proveedor_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.proveedor": {
+      "name": "proveedor",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "celular": {
+          "name": "celular",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "telefono": {
+          "name": "telefono",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "correo": {
+          "name": "correo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direccion": {
+          "name": "direccion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.reserva": {
+      "name": "reserva",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estadoReserva",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cantidadPersonas": {
+          "name": "cantidadPersonas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fechaHora": {
+          "name": "fechaHora",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mesa": {
+          "name": "mesa",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cliente_ci": {
+          "name": "cliente_ci",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reserva_cliente_ci_cliente_ci_fk": {
+          "name": "reserva_cliente_ci_cliente_ci_fk",
+          "tableFrom": "reserva",
+          "tableTo": "cliente",
+          "columnsFrom": [
+            "cliente_ci"
+          ],
+          "columnsTo": [
+            "ci"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.reservaPlatos": {
+      "name": "reservaPlatos",
+      "schema": "",
+      "columns": {
+        "cantidad": {
+          "name": "cantidad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reserva_id": {
+          "name": "reserva_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "producto_id": {
+          "name": "producto_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reservaPlatos_reserva_id_reserva_id_fk": {
+          "name": "reservaPlatos_reserva_id_reserva_id_fk",
+          "tableFrom": "reservaPlatos",
+          "tableTo": "reserva",
+          "columnsFrom": [
+            "reserva_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reservaPlatos_producto_id_producto_id_fk": {
+          "name": "reservaPlatos_producto_id_producto_id_fk",
+          "tableFrom": "reservaPlatos",
+          "tableTo": "producto",
+          "columnsFrom": [
+            "producto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_name": {
+          "name": "user_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cliente_ci": {
+          "name": "cliente_ci",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_cliente_ci_cliente_ci_fk": {
+          "name": "user_cliente_ci_cliente_ci_fk",
+          "tableFrom": "user",
+          "tableTo": "cliente",
+          "columnsFrom": [
+            "cliente_ci"
+          ],
+          "columnsTo": [
+            "ci"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "enums": {
+    "public.estadoMesa": {
+      "name": "estadoMesa",
+      "schema": "public",
+      "values": [
+        "ocupada",
+        "libre",
+        "reservada"
+      ]
+    },
+    "public.estadoOrden": {
+      "name": "estadoOrden",
+      "schema": "public",
+      "values": [
+        "pendiente",
+        "en preparacion",
+        "entregado"
+      ]
+    },
+    "public.estadoPedido": {
+      "name": "estadoPedido",
+      "schema": "public",
+      "values": [
+        "pendiente",
+        "cancelado",
+        "en camino",
+        "listo para recoger",
+        "entregado"
+      ]
+    },
+    "public.estadoReserva": {
+      "name": "estadoReserva",
+      "schema": "public",
+      "values": [
+        "pendiente",
+        "confirmada",
+        "cancelada",
+        "utilizada",
+        "no asistio"
+      ]
+    },
+    "public.tipoProducto": {
+      "name": "tipoProducto",
+      "schema": "public",
+      "values": [
+        "plato",
+        "bebida"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

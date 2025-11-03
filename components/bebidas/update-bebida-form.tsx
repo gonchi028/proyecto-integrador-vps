@@ -1,0 +1,176 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { DialogFooter, DialogHeader } from '@/components/ui/dialog';
+import {
+  DialogClose,
+  DialogDescription,
+  DialogTitle,
+} from '@radix-ui/react-dialog';
+import { updateBebida } from '@/server/product-queries';
+import { useBebidasStore } from '@/store/bebida/bebida-store';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+const formSchema = z.object({
+  nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  descripcion: z
+    .string()
+    .min(2, 'La descripcion debe tener al menos 2 caracteres'),
+  categoria: z.string().min(2, 'La categoria debe tener al menos 2 caracteres'),
+  precio: z.coerce.number().positive('El precio debe ser un número positivo'),
+  cantidad: z.coerce
+    .number()
+    .int('La cantidad debe ser entera')
+    .positive('La cantidad debe ser un número positivo'),
+  urlImagen: z.string().url('La url de la imagen no es válida'),
+});
+
+type Props = {
+  closeDialog: () => void;
+};
+
+export const UpdateBebidaForm = ({ closeDialog }: Props) => {
+  const [loading, setLoading] = useState(false);
+  const bebidaToUpdate = useBebidasStore((state) => state.bebidaToUpdate);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      nombre: bebidaToUpdate?.nombre ?? '',
+      descripcion: bebidaToUpdate?.descripcion ?? '',
+      categoria: bebidaToUpdate?.categoria ?? '',
+      precio: bebidaToUpdate?.precio ?? 0,
+      cantidad: bebidaToUpdate?.cantidad ?? 0,
+      urlImagen: bebidaToUpdate?.urlImagen ?? '',
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
+    await updateBebida(bebidaToUpdate?.id ?? 0, values);
+    setLoading(false);
+    toast.success('Operacion exitosa!', {
+      description: 'La bebida se ha actualizado correctamente',
+    });
+    closeDialog();
+  };
+
+  return (
+    <Form {...form}>
+      <DialogHeader>
+        <DialogTitle>Modificar bebida</DialogTitle>
+        <DialogDescription>
+          Llena la informacion de la bebida que quieres modificar
+        </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="nombre"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nombre</FormLabel>
+              <FormControl>
+                <Input placeholder="Nombre de la bebida" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="descripcion"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Descripcion</FormLabel>
+              <FormControl>
+                <Input placeholder="Descripcion de la bebida" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="categoria"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoria</FormLabel>
+              <FormControl>
+                <Input placeholder="Categoria de la bebida" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="precio"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Precio</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Precio de la bebida"
+                  {...field}
+                  type="number"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="cantidad"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cantidad</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Precio de la bebida"
+                  {...field}
+                  type="number"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="urlImagen"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Url imagen</FormLabel>
+              <FormControl>
+                <Input placeholder="Url de la imagen de la bebida" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Cancelar</Button>
+          </DialogClose>
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Actualizando...' : 'Actualizar'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  );
+};

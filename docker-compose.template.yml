@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   nextjs-app:
-    image: ${DOCKER_USER}/univalle-nextjs-docker:latest
-    container_name: univalle-nextjs-production
+    image: ${DOCKER_USER}/proyecto-integrador-restaurante:latest
+    container_name: proyecto-integrador-restaurante-production
     restart: unless-stopped
     ports:
       - "3000:3000"

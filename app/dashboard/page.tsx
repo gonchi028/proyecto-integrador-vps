@@ -1,5 +1,9 @@
 import { Metadata } from "next"
 
+// Force dynamic rendering for all dashboard pages
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata : Metadata = {
   title: "Dashboard - Terrasse",
   description: "Bienvenido al dashboar del Terrasse!",

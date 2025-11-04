@@ -2,6 +2,9 @@ import { ClientesTable } from '@/components/clientes/clientes-table';
 import { getClientes } from '@/server/cliente-queries';
 import { Users } from 'lucide-react';
 
+// Force dynamic rendering - don't pre-render at build time
+export const dynamic = 'force-dynamic';
+
 export default async function ClientesPage() {
   const clientes = await getClientes();
 

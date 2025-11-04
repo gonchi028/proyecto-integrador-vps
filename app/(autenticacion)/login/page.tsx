@@ -2,6 +2,9 @@ import { SignInWithGoogle } from './sign-in-with-google';
 import { LoginForm } from './login-form';
 import Link from 'next/link';
 
+// Force dynamic rendering - authentication pages must be dynamic
+export const dynamic = 'force-dynamic';
+
 export default function Login() {
   return (
     <>

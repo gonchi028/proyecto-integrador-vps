@@ -9,12 +9,10 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      # Add your environment variables here as needed
-      # - DATABASE_URL=${DATABASE_URL}
-      # - API_KEY=${API_KEY}
-    # Uncomment if you need to persist data
-    # volumes:
-    #   - ./data:/app/data
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL}
     networks:
       - app-network
 

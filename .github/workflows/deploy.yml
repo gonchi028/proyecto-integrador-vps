@@ -155,13 +155,16 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ./univalle-nextjs-docker
+        context: .
         push: true
         tags: |
           ${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:latest
           ${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:${{ github.sha }}
         cache-from: type=registry,ref=${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:buildcache
         cache-to: type=registry,ref=${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:buildcache,mode=max
+        build-args: |
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     - name: Create docker-compose.yml for deployment
       run: |
@@ -177,6 +180,10 @@ jobs:
               - "80:3000"
             environment:
               - NODE_ENV=production
+              - NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+              - NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+              - DATABASE_URL=${{ secrets.DATABASE_URL }}
+              - NEXT_PUBLIC_URL=http://${{ needs.terraform.outputs.vm_public_ip }}
 
         EOF
 

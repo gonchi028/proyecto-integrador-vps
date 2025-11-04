@@ -158,10 +158,10 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:latest
-          ${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:buildcache,mode=max
+          ${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante:latest
+          ${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante:${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante:buildcache,mode=max
         build-args: |
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -173,7 +173,7 @@ jobs:
 
         services:
           nextjs-app:
-            image: ${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:latest
+            image: ${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante:latest
             container_name: univalle-nextjs-production
             restart: unless-stopped
             ports:
@@ -217,7 +217,7 @@ jobs:
 
           # Pull latest image
           echo "Pulling latest Docker image..."
-          sudo docker pull $DOCKER_USER/univalle-nextjs-docker:latest
+          sudo docker pull $DOCKER_USER/proyecto-integrador-restaurante:latest
           
           # Stop and remove old container
           echo "Stopping old container..."
@@ -266,10 +266,10 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Application URL:** http://$VM_IP" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Docker Image:** \`${{ secrets.DOCKER_USER }}/univalle-nextjs-docker:latest\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Docker Image:** \`${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante:latest\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Commit SHA:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
         echo "- [View Application](http://$VM_IP)" >> $GITHUB_STEP_SUMMARY
-        echo "- [Docker Hub Image](https://hub.docker.com/r/${{ secrets.DOCKER_USER }}/univalle-nextjs-docker)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Docker Hub Image](https://hub.docker.com/r/${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante)" >> $GITHUB_STEP_SUMMARY

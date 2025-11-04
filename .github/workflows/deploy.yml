@@ -152,8 +152,9 @@ jobs:
 
     - name: Wait for VM to be ready
       run: |
-        echo "Waiting 90 seconds for VM initialization and Docker installation..."
-        sleep 90
+        echo "Waiting for VM initialization and Docker installation..."
+        echo "This may take 2-3 minutes for a new VM..."
+        sleep 120
 
     - name: Test SSH Connection
       run: |
@@ -175,6 +176,56 @@ jobs:
         done
         echo "⚠️ SSH connection could not be established after 5 attempts"
         exit 1
+      env:
+        VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+
+    - name: Verify Docker Installation on VM
+      run: |
+        mkdir -p ~/.ssh
+        printf "%s\n" "$VM_SSH_PRIVATE_KEY" > ~/.ssh/oci_vm_key
+        chmod 600 ~/.ssh/oci_vm_key
+        ssh-keyscan -H ${{ steps.terraform_output.outputs.public_ip }} >> ~/.ssh/known_hosts 2>/dev/null || true
+        
+        echo "Checking Docker installation status..."
+        ssh -i ~/.ssh/oci_vm_key -o StrictHostKeyChecking=no ubuntu@${{ steps.terraform_output.outputs.public_ip }} << 'ENDSSH'
+          # Wait for cloud-init to complete Docker installation
+          echo "Waiting for Docker installation to complete..."
+          for i in {1..60}; do
+            if [ -f /var/lib/cloud/instance/docker-ready ]; then
+              echo "✅ Docker installation marker found"
+              break
+            fi
+            if sudo docker --version >/dev/null 2>&1; then
+              echo "✅ Docker is available"
+              break
+            fi
+            echo "Waiting for Docker... ($i/60)"
+            sleep 5
+          done
+          
+          echo "=== System Information ==="
+          uname -a
+          
+          echo "=== Docker Version ==="
+          sudo docker --version || echo "Docker not installed"
+          
+          echo "=== Docker Compose Version ==="
+          sudo docker compose version || echo "Docker Compose not installed"
+          
+          echo "=== Docker Service Status ==="
+          sudo systemctl status docker --no-pager || echo "Docker service not running"
+          
+          echo "=== Cloud-init logs (last 50 lines) ==="
+          sudo tail -n 50 /var/log/cloud-init-docker.log 2>/dev/null || echo "No cloud-init log found"
+          
+          echo "=== Checking if Docker is working ==="
+          if sudo docker ps >/dev/null 2>&1; then
+            echo "✅ Docker is working correctly"
+          else
+            echo "❌ Docker is not working properly"
+            exit 1
+          fi
+        ENDSSH
       env:
         VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
 
@@ -238,62 +289,144 @@ jobs:
         ssh-keyscan -H $VM_IP >> ~/.ssh/known_hosts 2>/dev/null || true
 
         # Copy docker-compose file
+        echo "Copying docker-compose.yml to VM..."
         scp -i ~/.ssh/oci_vm_key -o StrictHostKeyChecking=no docker-compose.yml ubuntu@$VM_IP:~/
 
         # Deploy on VM
         ssh -i ~/.ssh/oci_vm_key -o StrictHostKeyChecking=no ubuntu@$VM_IP << ENDSSH
+          set -e  # Exit on error
+          
+          echo "=========================================="
+          echo "Starting deployment process..."
+          echo "=========================================="
+          
           # Wait for Docker to be ready
           echo "Waiting for Docker to be ready..."
           for i in {1..30}; do
             if sudo docker ps >/dev/null 2>&1; then
-              echo "Docker is ready"
+              echo "✅ Docker is ready"
               break
             fi
             echo "Waiting for Docker... (\$i/30)"
             sleep 2
           done
 
+          # Verify docker-compose.yml
+          echo "Verifying docker-compose.yml..."
+          if [ ! -f ~/docker-compose.yml ]; then
+            echo "❌ docker-compose.yml not found!"
+            exit 1
+          fi
+          echo "✅ docker-compose.yml found"
+          cat ~/docker-compose.yml
+
           # Pull latest image
           echo "Pulling latest Docker image..."
-          sudo docker pull $DOCKER_USER/proyecto-integrador-restaurante:latest
+          if sudo docker pull $DOCKER_USER/proyecto-integrador-restaurante:latest; then
+            echo "✅ Image pulled successfully"
+          else
+            echo "❌ Failed to pull image"
+            exit 1
+          fi
           
           # Stop and remove old container
-          echo "Stopping old container..."
-          sudo docker compose down 2>/dev/null || true
+          echo "Stopping old containers..."
+          sudo docker compose down 2>/dev/null || echo "No existing containers to stop"
+          
+          # Remove any containers that might be using port 80
+          echo "Checking for containers using port 80..."
+          sudo docker ps -a --filter "publish=80" --format "{{.ID}}" | xargs -r sudo docker rm -f || true
           
           # Start new container
           echo "Starting new container..."
-          sudo docker compose up -d
+          if sudo docker compose up -d; then
+            echo "✅ Container started successfully"
+          else
+            echo "❌ Failed to start container"
+            echo "Checking logs..."
+            sudo docker compose logs
+            exit 1
+          fi
+          
+          # Wait a bit for container to start
+          sleep 5
+          
+          # Check container status
+          echo "=========================================="
+          echo "Container Status:"
+          sudo docker compose ps
+          
+          echo "=========================================="
+          echo "Container Logs (last 30 lines):"
+          sudo docker compose logs --tail=30
+          
+          echo "=========================================="
+          echo "Checking if port 3000 is listening inside container..."
+          CONTAINER_ID=\$(sudo docker compose ps -q nextjs-app)
+          if [ -n "\$CONTAINER_ID" ]; then
+            sudo docker exec \$CONTAINER_ID sh -c "netstat -tulpn 2>/dev/null || ss -tulpn" || true
+          fi
+          
+          echo "=========================================="
+          echo "Checking if port 80 is listening on host..."
+          sudo netstat -tulpn | grep :80 || sudo ss -tulpn | grep :80 || echo "Port 80 not listening"
           
           # Clean up old images
           echo "Cleaning up old images..."
           sudo docker image prune -af
           
           # Show running containers
+          echo "=========================================="
           echo "Running containers:"
           sudo docker ps
           
+          echo "=========================================="
           echo "✅ Deployment completed successfully!"
         ENDSSH
 
     - name: Health Check
       run: |
         VM_IP=${{ needs.terraform.outputs.vm_public_ip }}
-        echo "Waiting for application to start..."
+        echo "=========================================="
+        echo "Starting health check for: http://$VM_IP"
+        echo "=========================================="
         sleep 20
         
         # Check if app is responding
-        for i in {1..10}; do
-          if curl -f -m 5 http://$VM_IP > /dev/null 2>&1; then
+        for i in {1..15}; do
+          echo "Health check attempt $i/15..."
+          
+          # Try to connect and show response
+          if curl -v -f -m 10 http://$VM_IP 2>&1 | tee /tmp/curl_output.txt; then
             echo "✅ Application is running and healthy!"
+            echo "Response received successfully"
             exit 0
           fi
-          echo "Health check attempt $i/10 failed, retrying in 10 seconds..."
-          sleep 10
+          
+          # Show what went wrong
+          echo "⚠️ Health check failed"
+          echo "Curl output:"
+          cat /tmp/curl_output.txt || true
+          
+          if [ $i -lt 15 ]; then
+            echo "Retrying in 10 seconds..."
+            sleep 10
+          fi
         done
         
-        echo "⚠️ Application health check did not pass, but deployment completed. Please check manually."
-        exit 0
+        echo "=========================================="
+        echo "❌ Application health check did not pass after 15 attempts"
+        echo "=========================================="
+        echo "Possible issues:"
+        echo "1. Firewall rules may not be configured (check OCI security list)"
+        echo "2. Container may not have started properly"
+        echo "3. Application may have errors"
+        echo ""
+        echo "Please check:"
+        echo "- GitHub Actions logs for deployment errors"
+        echo "- SSH into VM and run: sudo docker compose logs"
+        echo "- Check OCI console for security list rules on port 80"
+        exit 1
 
     - name: Summary
       run: |

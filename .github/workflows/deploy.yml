@@ -153,9 +153,10 @@ jobs:
     - name: Wait for VM to be ready
       run: |
         echo "Waiting for VM initialization and Docker installation..."
-        echo "This may take 3-5 minutes for a new VM..."
+        echo "This may take 5-8 minutes for a new VM..."
         echo "Cloud-init needs time to complete system updates and Docker installation..."
-        sleep 180
+        echo "Starting with 4 minute initial wait, then will check cloud-init status..."
+        sleep 240
 
     - name: Test SSH Connection
       run: |
@@ -191,9 +192,33 @@ jobs:
         ssh -i ~/.ssh/oci_vm_key -o StrictHostKeyChecking=no ubuntu@${{ steps.terraform_output.outputs.public_ip }} << 'ENDSSH'
           # Wait for cloud-init to fully complete first
           echo "Waiting for cloud-init to complete..."
-          sudo cloud-init status --wait || echo "cloud-init status command not available, continuing..."
+          echo "This is critical - cloud-init must finish before we can check Docker"
           
-          echo "Cloud-init finished, now checking Docker installation..."
+          # Method 1: Wait for cloud-init status
+          MAX_WAIT=600  # 10 minutes max
+          ELAPSED=0
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            STATUS=$(sudo cloud-init status 2>/dev/null | grep -oP 'status: \K\w+' || echo "unknown")
+            echo "Cloud-init status: $STATUS (waited ${ELAPSED}s)"
+            
+            if [ "$STATUS" = "done" ]; then
+              echo "✅ Cloud-init completed successfully"
+              break
+            elif [ "$STATUS" = "error" ]; then
+              echo "⚠️ Cloud-init finished with errors, but continuing..."
+              break
+            fi
+            
+            sleep 10
+            ELAPSED=$((ELAPSED + 10))
+          done
+          
+          if [ $ELAPSED -ge $MAX_WAIT ]; then
+            echo "⚠️ Timeout waiting for cloud-init, continuing anyway..."
+          fi
+          
+          echo ""
+          echo "Cloud-init phase complete, now checking Docker installation..."
           
           # Wait for Docker installation to complete
           for i in {1..30}; do

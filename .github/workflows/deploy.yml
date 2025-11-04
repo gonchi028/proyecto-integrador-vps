@@ -197,15 +197,28 @@ jobs:
           # Method 1: Wait for cloud-init status
           MAX_WAIT=600  # 10 minutes max
           ELAPSED=0
+          LAST_STATUS=""
+          
           while [ $ELAPSED -lt $MAX_WAIT ]; do
             STATUS=$(sudo cloud-init status 2>/dev/null | grep -oP 'status: \K\w+' || echo "unknown")
-            echo "Cloud-init status: $STATUS (waited ${ELAPSED}s)"
+            
+            # Only print if status changed or every 30 seconds
+            if [ "$STATUS" != "$LAST_STATUS" ] || [ $((ELAPSED % 30)) -eq 0 ]; then
+              echo "[$(date +%H:%M:%S)] Cloud-init status: $STATUS (waited ${ELAPSED}s / ${MAX_WAIT}s)"
+              
+              # Show what's happening
+              if [ "$STATUS" = "running" ]; then
+                echo "  → Cloud-init is still installing Docker and dependencies..."
+              fi
+            fi
+            LAST_STATUS="$STATUS"
             
             if [ "$STATUS" = "done" ]; then
-              echo "✅ Cloud-init completed successfully"
+              echo "✅ Cloud-init completed successfully after ${ELAPSED}s"
               break
             elif [ "$STATUS" = "error" ]; then
-              echo "⚠️ Cloud-init finished with errors, but continuing..."
+              echo "⚠️ Cloud-init finished with errors after ${ELAPSED}s, but continuing..."
+              sudo cloud-init status --long 2>/dev/null || true
               break
             fi
             
@@ -214,7 +227,10 @@ jobs:
           done
           
           if [ $ELAPSED -ge $MAX_WAIT ]; then
-            echo "⚠️ Timeout waiting for cloud-init, continuing anyway..."
+            echo "❌ Timeout waiting for cloud-init after ${MAX_WAIT}s"
+            echo "Current status: $STATUS"
+            sudo cloud-init status --long 2>/dev/null || true
+            echo "Continuing anyway, but Docker may not be installed..."
           fi
           
           echo ""

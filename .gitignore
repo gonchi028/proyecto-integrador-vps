@@ -20,6 +20,10 @@
 .DS_Store
 *.pem
 
+# OCI keys
+/oci-keys-local
+/oci-keys
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -69,7 +69,7 @@ jobs:
 
     - name: Create terraform.tfvars
       run: |
-        cat > terraform.tfvars << 'EOF'
+        cat > terraform.tfvars << EOF
         tenancy_ocid = "${{ secrets.OCI_TENANCY_OCID }}"
         user_ocid = "${{ secrets.OCI_USER_OCID }}"
         fingerprint = "${{ secrets.OCI_FINGERPRINT }}"
@@ -79,7 +79,9 @@ jobs:
         subnet_id = "${{ secrets.OCI_SUBNET_ID }}"
         availability_domain = "${{ secrets.OCI_AVAILABILITY_DOMAIN }}"
         ubuntu_2204_image_ocid = "${{ secrets.OCI_UBUNTU_IMAGE_OCID }}"
-        ssh_public_key = "${{ secrets.VM_SSH_PUBLIC_KEY }}"
+        ssh_public_key = <<-EOT
+        ${{ secrets.VM_SSH_PUBLIC_KEY }}
+        EOT
         EOF
 
     - name: Download previous Terraform state

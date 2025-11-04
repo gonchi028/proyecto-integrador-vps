@@ -99,6 +99,15 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"$VM_IP" << 'ENDSSH'
   echo "=========================================="
   echo "9. Cloud-init Status"
   echo "=========================================="
+  
+  echo "Cloud-init overall status:"
+  sudo cloud-init status || echo "cloud-init status command not available"
+  
+  echo ""
+  echo "Cloud-init detailed status:"
+  sudo cloud-init status --long 2>/dev/null || echo "Could not get detailed status"
+  
+  echo ""
   if [ -f /var/lib/cloud/instance/docker-ready ]; then
     echo "✅ Docker installation completed"
   else
@@ -106,11 +115,16 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"$VM_IP" << 'ENDSSH'
   fi
   
   if [ -f /var/log/cloud-init-docker.log ]; then
-    echo "Last 30 lines of cloud-init log:"
-    sudo tail -n 30 /var/log/cloud-init-docker.log
+    echo ""
+    echo "Last 50 lines of cloud-init Docker installation log:"
+    sudo tail -n 50 /var/log/cloud-init-docker.log
   else
-    echo "No cloud-init log found"
+    echo "No cloud-init Docker log found"
   fi
+  
+  echo ""
+  echo "Cloud-init output log (errors):"
+  sudo tail -n 20 /var/log/cloud-init-output.log 2>/dev/null || echo "No cloud-init output log"
   
   echo ""
   echo "=========================================="

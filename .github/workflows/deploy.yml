@@ -153,8 +153,9 @@ jobs:
     - name: Wait for VM to be ready
       run: |
         echo "Waiting for VM initialization and Docker installation..."
-        echo "This may take 2-3 minutes for a new VM..."
-        sleep 120
+        echo "This may take 3-5 minutes for a new VM..."
+        echo "Cloud-init needs time to complete system updates and Docker installation..."
+        sleep 180
 
     - name: Test SSH Connection
       run: |
@@ -188,9 +189,14 @@ jobs:
         
         echo "Checking Docker installation status..."
         ssh -i ~/.ssh/oci_vm_key -o StrictHostKeyChecking=no ubuntu@${{ steps.terraform_output.outputs.public_ip }} << 'ENDSSH'
-          # Wait for cloud-init to complete Docker installation
-          echo "Waiting for Docker installation to complete..."
-          for i in {1..60}; do
+          # Wait for cloud-init to fully complete first
+          echo "Waiting for cloud-init to complete..."
+          sudo cloud-init status --wait || echo "cloud-init status command not available, continuing..."
+          
+          echo "Cloud-init finished, now checking Docker installation..."
+          
+          # Wait for Docker installation to complete
+          for i in {1..30}; do
             if [ -f /var/lib/cloud/instance/docker-ready ]; then
               echo "✅ Docker installation marker found"
               break
@@ -199,7 +205,7 @@ jobs:
               echo "✅ Docker is available"
               break
             fi
-            echo "Waiting for Docker... ($i/60)"
+            echo "Waiting for Docker... ($i/30)"
             sleep 5
           done
           

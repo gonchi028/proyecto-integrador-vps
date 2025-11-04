@@ -44,8 +44,21 @@ jobs:
     - name: Create OCI private key file
       run: |
         mkdir -p oci-keys
-        printf "%s\n" "$OCI_PRIVATE_KEY" > oci-keys/api_key.pem
+        echo "$OCI_PRIVATE_KEY" > oci-keys/api_key.pem
         chmod 600 oci-keys/api_key.pem
+        # Verify the key file was created
+        if [ ! -s oci-keys/api_key.pem ]; then
+          echo "Error: Private key file is empty"
+          exit 1
+        fi
+        # Verify key format (should start with -----BEGIN)
+        if ! grep -q "BEGIN" oci-keys/api_key.pem; then
+          echo "Error: Private key file doesn't appear to be in PEM format"
+          echo "First line: $(head -n1 oci-keys/api_key.pem)"
+          exit 1
+        fi
+        echo "✅ Private key file created successfully"
+        echo "Key type: $(head -n1 oci-keys/api_key.pem)"
       env:
         OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
 

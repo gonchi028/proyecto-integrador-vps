@@ -263,7 +263,8 @@ jobs:
 
     - name: Create docker-compose.yml for deployment
       run: |
-        cat > docker-compose.yml << 'EOF'
+        VM_IP="${{ needs.terraform.outputs.vm_public_ip }}"
+        cat > docker-compose.yml << EOF
         version: '3.8'
 
         services:
@@ -278,9 +279,11 @@ jobs:
               - NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
               - NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
               - DATABASE_URL=${{ secrets.DATABASE_URL }}
-              - NEXT_PUBLIC_URL=http://${{ needs.terraform.outputs.vm_public_ip }}
+              - NEXT_PUBLIC_URL=http://\${VM_IP}
 
         EOF
+        
+        echo "Docker Compose file created with NEXT_PUBLIC_URL=http://${VM_IP}"
 
     - name: Deploy to VM
       env:
@@ -386,6 +389,15 @@ jobs:
           echo "Running containers:"
           sudo docker ps
           
+          # Verify environment variables
+          echo "=========================================="
+          echo "Verifying environment variables in container..."
+          CONTAINER_ID=\$(sudo docker compose ps -q nextjs-app)
+          if [ -n "\$CONTAINER_ID" ]; then
+            echo "NEXT_PUBLIC_URL is set to:"
+            sudo docker exec \$CONTAINER_ID printenv NEXT_PUBLIC_URL || echo "Could not read NEXT_PUBLIC_URL"
+          fi
+          
           echo "=========================================="
           echo "✅ Deployment completed successfully!"
         ENDSSH
@@ -447,6 +459,25 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Commit SHA:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🌐 Environment Variables" >> $GITHUB_STEP_SUMMARY
+        echo "- **NEXT_PUBLIC_URL:** \`http://$VM_IP\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **NODE_ENV:** \`production\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
         echo "- [View Application](http://$VM_IP)" >> $GITHUB_STEP_SUMMARY
         echo "- [Docker Hub Image](https://hub.docker.com/r/${{ secrets.DOCKER_USER }}/proyecto-integrador-restaurante)" >> $GITHUB_STEP_SUMMARY
+  send_email:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Despliegue completado"
+          body: "El despliegue de la aplicación se ha completado exitosamente. http://${{ needs.terraform.outputs.vm_public_ip }}"
+          to: gonchi.028@gmail.com
+          from: Luke Skywalker

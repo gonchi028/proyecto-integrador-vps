@@ -65,7 +65,26 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"$VM_IP" << 'ENDSSH'
   
   echo ""
   echo "=========================================="
-  echo "6. Application Logs (last 50 lines)"
+  echo "6. Environment Variables in Container"
+  echo "=========================================="
+  CONTAINER_ID=$(sudo docker ps -q --filter "name=univalle-nextjs" | head -n1)
+  if [ -n "$CONTAINER_ID" ]; then
+    echo "Container found: $CONTAINER_ID"
+    echo "NEXT_PUBLIC_URL:"
+    sudo docker exec "$CONTAINER_ID" printenv NEXT_PUBLIC_URL 2>/dev/null || echo "Not set"
+    echo ""
+    echo "NODE_ENV:"
+    sudo docker exec "$CONTAINER_ID" printenv NODE_ENV 2>/dev/null || echo "Not set"
+    echo ""
+    echo "All NEXT_PUBLIC_* variables:"
+    sudo docker exec "$CONTAINER_ID" printenv | grep NEXT_PUBLIC || echo "None found"
+  else
+    echo "No container running"
+  fi
+  
+  echo ""
+  echo "=========================================="
+  echo "7. Application Logs (last 50 lines)"
   echo "=========================================="
   if [ -f ~/docker-compose.yml ]; then
     sudo docker compose logs --tail=50 2>/dev/null || echo "No logs available"
@@ -81,7 +100,7 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"$VM_IP" << 'ENDSSH'
   
   echo ""
   echo "=========================================="
-  echo "7. Port Status"
+  echo "8. Port Status"
   echo "=========================================="
   echo "Listening ports:"
   sudo netstat -tulpn 2>/dev/null || sudo ss -tulpn
@@ -91,13 +110,13 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"$VM_IP" << 'ENDSSH'
   
   echo ""
   echo "=========================================="
-  echo "8. Firewall/iptables Status"
+  echo "9. Firewall/iptables Status"
   echo "=========================================="
   sudo iptables -L -n -v | head -n 20 || echo "Could not check iptables"
   
   echo ""
   echo "=========================================="
-  echo "9. Cloud-init Status"
+  echo "10. Cloud-init Status"
   echo "=========================================="
   
   echo "Cloud-init overall status:"
@@ -128,26 +147,26 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"$VM_IP" << 'ENDSSH'
   
   echo ""
   echo "=========================================="
-  echo "10. Disk Space"
+  echo "11. Disk Space"
   echo "=========================================="
   df -h
   
   echo ""
   echo "=========================================="
-  echo "11. Memory Usage"
+  echo "12. Memory Usage"
   echo "=========================================="
   free -h
   
   echo ""
   echo "=========================================="
-  echo "12. Testing localhost connection"
+  echo "13. Testing localhost connection"
   echo "=========================================="
   curl -v http://localhost:80 2>&1 | head -n 20 || echo "Cannot connect to localhost:80"
 ENDSSH
 
 echo ""
 echo "=========================================="
-echo "13. Testing external connection from this machine"
+echo "14. Testing external connection from this machine"
 echo "=========================================="
 if curl -v -m 10 http://"$VM_IP" 2>&1 | head -n 30; then
   echo "✅ Successfully connected to http://$VM_IP"

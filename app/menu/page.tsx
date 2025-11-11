@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Menú - Terrasse',
+  title: 'Menú - Terrasse Univalle',
   description: 'Descubre nuestra deliciosa selección de platos, bebidas y combos especiales',
 };
 

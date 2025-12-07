@@ -12,13 +12,28 @@ echo "=========================================="
 echo "Starting Docker installation at $(date)"
 echo "=========================================="
 
-# 1. Actualizar paquetes
+# Function to wait for apt locks to be released
+wait_for_apt_lock() {
+    echo "Waiting for apt locks to be released..."
+    while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+          sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
+          sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+        echo "Apt is locked by another process, waiting 5 seconds..."
+        sleep 5
+    done
+    echo "Apt locks released, continuing..."
+}
+
+# 1. Wait for any automatic updates to finish, then update packages
 echo "Step 1: Updating packages..."
+wait_for_apt_lock
 sudo apt-get update -y
+wait_for_apt_lock
 sudo apt-get upgrade -y
 
 # 2. Instalar dependencias necesarias
 echo "Step 2: Installing dependencies..."
+wait_for_apt_lock
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
 # 3. Configurar repositorio de Docker
@@ -33,7 +48,9 @@ echo \
 
 # 4. Instalar Docker
 echo "Step 4: Installing Docker..."
+wait_for_apt_lock
 sudo apt-get update -y
+wait_for_apt_lock
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # 5. Añadir el usuario por defecto (ubuntu) al grupo docker
